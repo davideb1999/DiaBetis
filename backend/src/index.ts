@@ -25,7 +25,7 @@ app.use('/api/nightscout', nightscoutRouter);
 // Serve Angular frontend in production
 const frontendDist = path.join(__dirname, '../../frontend/dist/frontend/browser');
 app.use(express.static(frontendDist));
-app.get('*', (_req, res) => {
+app.get(/.*/, (_req, res) => {
   res.sendFile(path.join(frontendDist, 'index.html'));
 });
 
