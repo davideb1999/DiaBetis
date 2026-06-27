@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import bcrypt from 'bcryptjs';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -42,6 +43,18 @@ export async function initDatabase() {
       image_path TEXT DEFAULT ''
     )
   `);
+
+  // Seed default user if no profiles exist
+  const { rows } = await pool.query('SELECT COUNT(*) FROM profile');
+  if (parseInt(rows[0].count) === 0) {
+    const hash = await bcrypt.hash('Zaira2024', 12);
+    await pool.query(
+      `INSERT INTO profile (name, username, password_hash, icr, isf, target_bg, dia, units, setup_done, theme_color)
+       VALUES ('Zaira', 'zaira', $1, 10, 50, 100, 3.5, 'mg/dL', 1, 'rose')`,
+      [hash]
+    );
+    console.log('Usuario inicial Zaira creado');
+  }
 
   console.log('Base de datos PostgreSQL lista');
 }
