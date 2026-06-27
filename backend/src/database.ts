@@ -44,6 +44,11 @@ export async function initDatabase() {
     )
   `);
 
+  // Add consent_given column if missing (migration)
+  await pool.query(`
+    ALTER TABLE profile ADD COLUMN IF NOT EXISTS consent_given BOOLEAN NOT NULL DEFAULT FALSE
+  `);
+
   // Seed default user if no profiles exist
   const { rows } = await pool.query('SELECT COUNT(*) FROM profile');
   if (parseInt(rows[0].count) === 0) {

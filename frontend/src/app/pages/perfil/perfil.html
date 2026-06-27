@@ -208,6 +208,23 @@
       <span class="material-icons-round text-base">logout</span> Cerrar sesión
     </button>
 
+    <!-- GDPR Data rights -->
+    <div class="card border border-red-100 dark:border-red-900/30">
+      <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">Mis datos (RGPD)</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+        Tienes derecho a que tus datos personales sean eliminados. Esta acción borra tu historial
+        de dosis y anonimiza tu perfil de forma permanente e irreversible.
+      </p>
+      <button (click)="anonymize()" class="btn-danger" [disabled]="anonymizing()">
+        @if (anonymizing()) { <div class="spinner" style="border-top-color:#ef4444"></div> }
+        @else { <span class="material-icons-round text-base">delete_forever</span> }
+        Eliminar todos mis datos
+      </button>
+      <a routerLink="/privacidad" class="mt-2 btn-ghost text-xs w-full flex items-center justify-center gap-1">
+        <span class="material-icons-round text-sm">privacy_tip</span> Política de privacidad
+      </a>
+    </div>
+
     <div class="h-2"></div>
   </div>
 </div>

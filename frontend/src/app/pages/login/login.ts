@@ -50,8 +50,8 @@ export class LoginComponent {
     this.entering.set(true);
     this.api.loginByUsername(this.username(), this.password()).subscribe({
       next: r => {
-        this.auth.setAuthenticated(r.id);
-        this.router.navigate(['/inicio']);
+        this.auth.setAuthenticated(r.id, r.consentGiven);
+        this.router.navigate([r.consentGiven ? '/inicio' : '/consentimiento']);
       },
       error: e => {
         this.entering.set(false);

@@ -1,0 +1,61 @@
+<div class="min-h-screen flex flex-col items-center justify-center px-6 py-10"
+     [style.background]="theme.bgGradient()">
+
+  <div class="w-full max-w-md scale-in">
+
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+           [style.background]="theme.headerGradient()">
+        <span class="material-icons-round text-white text-3xl">shield</span>
+      </div>
+      <h1 class="text-2xl font-bold text-slate-800 dark:text-white">Privacidad y consentimiento</h1>
+      <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Antes de continuar, necesitamos tu confirmación</p>
+    </div>
+
+    <!-- Card -->
+    <div class="card space-y-4 mb-5">
+
+      <div class="flex gap-3 p-3 rounded-xl bg-amber-50/60 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30">
+        <span class="material-icons-round text-amber-500 mt-0.5 flex-shrink-0">medical_information</span>
+        <div>
+          <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Datos médicos sensibles</p>
+          <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">Esta aplicación procesa información de salud protegida por el RGPD.</p>
+        </div>
+      </div>
+
+      <div class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+        <div class="flex items-start gap-2.5">
+          <span class="material-icons-round text-base mt-0.5" [style.color]="theme.palette.primary">lock</span>
+          <p><strong>Almacenamiento seguro:</strong> Tus datos se guardan cifrados en servidores europeos y nunca se comparten con terceros.</p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="material-icons-round text-base mt-0.5" [style.color]="theme.palette.primary">psychology</span>
+          <p><strong>IA para análisis:</strong> Las imágenes de comida se envían a Google Gemini únicamente para calcular carbohidratos. No se almacenan permanentemente.</p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="material-icons-round text-base mt-0.5" [style.color]="theme.palette.primary">delete_forever</span>
+          <p><strong>Derecho al olvido:</strong> Puedes eliminar todos tus datos en cualquier momento desde Perfil → Eliminar mis datos.</p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="material-icons-round text-base mt-0.5" [style.color]="theme.palette.primary">person</span>
+          <p><strong>Uso personal:</strong> Esta app es de uso personal. Tú eres el único responsable de las decisiones médicas que tomes.</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-slate-700 pt-3">
+        Al continuar, aceptas el tratamiento de tus datos de salud según lo descrito y confirmas haber leído la
+        <a routerLink="/privacidad" class="underline" [style.color]="theme.palette.primary">política de privacidad</a>.
+      </p>
+    </div>
+
+    <button class="btn-primary mb-3" (click)="accept()" [disabled]="accepting()">
+      @if (accepting()) { <div class="spinner"></div> } @else { <span class="material-icons-round">check_circle</span> }
+      Acepto y quiero continuar
+    </button>
+
+    <button class="btn-ghost w-full text-slate-400 text-sm" (click)="reject()">
+      No acepto — cerrar sesión
+    </button>
+  </div>
+</div>

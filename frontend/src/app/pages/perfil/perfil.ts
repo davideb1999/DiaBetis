@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService, Profile } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -17,7 +17,7 @@ const COLOR_LABELS: Record<ThemeColor, { label: string; hex: string }> = {
 
 @Component({
   selector: 'app-perfil',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
 })
@@ -32,7 +32,8 @@ export class PerfilComponent implements OnInit {
     name: '', icr: 10, isf: 50, target_bg: 100, dia: 3.5,
     nightscout_url: '', nightscout_token: '', pin: '', dark_mode: 0, theme_color: 'blue',
   });
-  saving  = signal(false);
+  saving      = signal(false);
+  anonymizing = signal(false);
   testing = signal(false);
   tdd     = signal<number | null>(null);
   calcTdd = signal(false);
@@ -116,6 +117,15 @@ export class PerfilComponent implements OnInit {
     this.api.getNightscoutReading().subscribe({
       next:  r => { this.testing.set(false); this.toast.show(`Conectado · ${r.sgv} mg/dL hace ${r.minutesAgo} min`, 'success'); },
       error: () => { this.testing.set(false); this.toast.show('No se pudo conectar con Nightscout', 'error'); },
+    });
+  }
+
+  anonymize() {
+    if (!confirm('¿Seguro? Esta acción eliminará todo tu historial y anonimizará tu cuenta. No se puede deshacer.')) return;
+    this.anonymizing.set(true);
+    this.api.anonymizeProfile(this.auth.profileId()).subscribe({
+      next: () => { this.auth.logout(); this.router.navigate(['/login']); },
+      error: () => { this.anonymizing.set(false); this.toast.show('Error al eliminar los datos', 'error'); },
     });
   }
 

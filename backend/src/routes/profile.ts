@@ -14,12 +14,30 @@ router.get('/all', async (_req: Request, res: Response) => {
   res.json(rows);
 });
 
+// Give GDPR consent
+router.post('/:id/consent', async (req: Request, res: Response) => {
+  await pool.query('UPDATE profile SET consent_given = TRUE WHERE id = $1', [req.params.id]);
+  res.json({ ok: true });
+});
+
+// Anonymize all personal data (GDPR right to erasure)
+router.post('/:id/anonymize', async (req: Request, res: Response) => {
+  await pool.query('DELETE FROM doses WHERE profile_id = $1', [req.params.id]);
+  await pool.query(`
+    UPDATE profile SET
+      name = 'Usuario eliminado', username = '', password_hash = '', pin = '',
+      nightscout_url = '', nightscout_token = '', consent_given = FALSE
+    WHERE id = $1
+  `, [req.params.id]);
+  res.json({ ok: true });
+});
+
 router.post('/login-by-username', async (req: Request, res: Response) => {
   const { username, password } = req.body as { username: string; password: string };
   if (!username || !password) { res.status(400).json({ error: 'Faltan credenciales' }); return; }
 
   const { rows } = await pool.query(
-    'SELECT id, name, username, password_hash FROM profile WHERE LOWER(username) = LOWER($1)',
+    'SELECT id, name, username, password_hash, consent_given FROM profile WHERE LOWER(username) = LOWER($1)',
     [username.trim()]
   );
   const profile = rows[0];
@@ -31,7 +49,7 @@ router.post('/login-by-username', async (req: Request, res: Response) => {
   const valid = await bcrypt.compare(password, profile.password_hash);
   if (!valid) { res.status(401).json({ error: 'Usuario o contraseña incorrectos' }); return; }
 
-  res.json({ ok: true, id: profile.id, name: profile.name });
+  res.json({ ok: true, id: profile.id, name: profile.name, consentGiven: profile.consent_given });
 });
 
 router.post('/login/:id', async (req: Request, res: Response) => {

@@ -85,8 +85,16 @@ export class ApiService {
     return this.http.get<ProfileSummary[]>(`${API}/profile/all`);
   }
 
-  loginByUsername(username: string, password: string): Observable<{ ok: boolean; id: number; name: string }> {
-    return this.http.post<{ ok: boolean; id: number; name: string }>(`${API}/profile/login-by-username`, { username, password });
+  loginByUsername(username: string, password: string): Observable<{ ok: boolean; id: number; name: string; consentGiven: boolean }> {
+    return this.http.post<{ ok: boolean; id: number; name: string; consentGiven: boolean }>(`${API}/profile/login-by-username`, { username, password });
+  }
+
+  giveConsent(id: number): Observable<{ ok: boolean }> {
+    return this.http.post<{ ok: boolean }>(`${API}/profile/${id}/consent`, {});
+  }
+
+  anonymizeProfile(id: number): Observable<{ ok: boolean }> {
+    return this.http.post<{ ok: boolean }>(`${API}/profile/${id}/anonymize`, {});
   }
 
   getProfile(id: number): Observable<Profile | null> {

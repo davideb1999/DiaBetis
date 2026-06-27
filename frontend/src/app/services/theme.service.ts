@@ -38,6 +38,19 @@ export class ThemeService {
     return `linear-gradient(135deg, ${p.from} 0%, ${p.via} 55%, ${p.to} 100%)`;
   }
 
+  bgGradient(): string {
+    const p = this.palette;
+    return this.isDark()
+      ? `linear-gradient(145deg, #0a0f1e 0%, #111827 60%, #0a0f1e 100%)`
+      : `linear-gradient(145deg, ${p.light} 0%, #ffffff 45%, ${p.light} 100%)`;
+  }
+
+  navBg(): string {
+    return this.isDark()
+      ? 'rgba(10, 15, 30, 0.75)'
+      : 'rgba(255, 255, 255, 0.72)';
+  }
+
   toggleDark() { this.applyDark(!this.isDark()); }
 
   setColor(c: ThemeColor) {

@@ -1,0 +1,93 @@
+<div class="min-h-screen px-5 py-8 max-w-2xl mx-auto">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-6">
+    <a routerLink="/consentimiento"
+       class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors"
+       style="backdrop-filter:blur(12px);background:rgba(255,255,255,0.6);">
+      <span class="material-icons-round text-slate-600">arrow_back</span>
+    </a>
+    <div>
+      <h1 class="text-xl font-bold text-slate-800 dark:text-white">Política de privacidad</h1>
+      <p class="text-xs text-slate-400">Última actualización: junio 2025</p>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+
+    <div class="card">
+      <h2 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+        <span class="material-icons-round text-base" [style.color]="theme.palette.primary">info</span>
+        Responsable del tratamiento
+      </h2>
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        DiaBetis es una aplicación de uso personal desarrollada para la gestión de diabetes tipo 1.
+        El único responsable del tratamiento eres tú, como usuario titular de los datos.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+        <span class="material-icons-round text-base" [style.color]="theme.palette.primary">database</span>
+        Datos que se almacenan
+      </h2>
+      <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1.5">
+        <li class="flex gap-2"><span class="text-slate-400">•</span> Nombre de usuario y contraseña (cifrada con bcrypt)</li>
+        <li class="flex gap-2"><span class="text-slate-400">•</span> Parámetros insulínicos: ratio (ICR), factor (ISF), objetivo de glucemia</li>
+        <li class="flex gap-2"><span class="text-slate-400">•</span> Historial de dosis calculadas (glucemia, carbohidratos, dosis)</li>
+        <li class="flex gap-2"><span class="text-slate-400">•</span> Preferencias de la app (color del tema, modo oscuro)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+        <span class="material-icons-round text-base" [style.color]="theme.palette.primary">psychology</span>
+        Uso de inteligencia artificial
+      </h2>
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        Las fotos de comida se envían a la API de Google Gemini para estimar carbohidratos.
+        Google procesa estas imágenes según su propia política de privacidad. Las imágenes
+        <strong>no se almacenan permanentemente</strong> en nuestros servidores tras el análisis.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+        <span class="material-icons-round text-base" [style.color]="theme.palette.primary">gavel</span>
+        Base legal (RGPD)
+      </h2>
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        El tratamiento se basa en tu <strong>consentimiento explícito</strong> (Art. 6.1.a RGPD)
+        y en la <strong>necesidad para la salud propia</strong> (Art. 9.2.a RGPD).
+        Puedes retirar tu consentimiento en cualquier momento eliminando tus datos.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+        <span class="material-icons-round text-base" [style.color]="theme.palette.primary">verified_user</span>
+        Tus derechos
+      </h2>
+      <ul class="text-sm text-slate-600 dark:text-slate-300 space-y-1.5">
+        <li class="flex gap-2"><span class="text-slate-400">•</span> <strong>Acceso:</strong> consulta tu historial en la pestaña Historial</li>
+        <li class="flex gap-2"><span class="text-slate-400">•</span> <strong>Rectificación:</strong> edita tus datos en Perfil</li>
+        <li class="flex gap-2"><span class="text-slate-400">•</span> <strong>Supresión:</strong> elimina todos tus datos desde Perfil → Eliminar mis datos</li>
+        <li class="flex gap-2"><span class="text-slate-400">•</span> <strong>Portabilidad:</strong> los datos se muestran en pantalla; puedes copiarlos manualmente</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2 class="font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+        <span class="material-icons-round text-base" [style.color]="theme.palette.primary">warning</span>
+        Aviso médico importante
+      </h2>
+      <p class="text-sm text-slate-600 dark:text-slate-300">
+        DiaBetis es una herramienta de <strong>apoyo</strong>, no un dispositivo médico certificado.
+        Las dosis calculadas son orientativas. Consulta siempre con tu endocrinólogo antes de
+        modificar tu tratamiento. El desarrollador no asume responsabilidad por decisiones médicas
+        tomadas basándose en esta aplicación.
+      </p>
+    </div>
+
+  </div>
+</div>
