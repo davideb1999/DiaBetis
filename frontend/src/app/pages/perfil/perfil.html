@@ -1,0 +1,213 @@
+<div class="min-h-full pb-6">
+
+  <!-- Header -->
+  <div class="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-5 pt-12 pb-4">
+    <h1 class="text-xl font-bold text-slate-900 dark:text-white">Perfil</h1>
+    <p class="text-sm text-slate-400">Ajusta tus parámetros y preferencias</p>
+  </div>
+
+  <div class="px-4 pt-4 space-y-3">
+
+    <!-- Personal -->
+    <div class="card">
+      <p class="section-tag mb-4">Datos personales</p>
+      <div class="space-y-3">
+        <div>
+          <label class="label">Nombre</label>
+          <input class="input-field" [ngModel]="profile().name" (ngModelChange)="set('name', $event)" placeholder="Ej: Zaira" />
+        </div>
+        <div>
+          <label class="label">Insulina rápida</label>
+          <select class="input-field cursor-pointer" [ngModel]="profile().dia" (ngModelChange)="set('dia', +$event)">
+            <option [value]="3.5">NovoRapid · Humalog · Apidra</option>
+            <option [value]="2.5">Fiasp · Lyumjev (ultra-rápida)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="card">
+      <p class="section-tag mb-4">Apariencia</p>
+
+      <!-- Dark mode -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <span class="material-icons-round text-slate-400">{{ theme.isDark() ? 'dark_mode' : 'light_mode' }}</span>
+          <div>
+            <p class="text-sm font-medium text-slate-700 dark:text-slate-200">Modo noche</p>
+            <p class="text-xs text-slate-400">Interfaz oscura para uso nocturno</p>
+          </div>
+        </div>
+        <button type="button" (click)="toggleDark()"
+          class="relative w-12 h-6 rounded-full transition-colors duration-200 flex-shrink-0"
+          [class]="theme.isDark() ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-600'">
+          <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200"
+                [class]="theme.isDark() ? 'translate-x-6' : 'translate-x-0'"></span>
+        </button>
+      </div>
+
+      <!-- Color theme -->
+      <div>
+        <label class="label mb-2">Color del tema</label>
+        <div class="flex gap-2 flex-wrap">
+          @for (entry of colorOptions; track entry[0]) {
+            <button type="button" (click)="pickColor(entry[0])"
+              class="w-9 h-9 rounded-full border-4 transition-all duration-150 flex-shrink-0"
+              [style.background]="entry[1].hex"
+              [class]="(profile().theme_color ?? 'blue') === entry[0] ? 'border-slate-900 dark:border-white scale-110' : 'border-transparent'"
+              [title]="entry[1].label">
+            </button>
+          }
+        </div>
+        <p class="text-xs text-slate-400 mt-1.5">Color actual: {{ colorLabel(profile().theme_color ?? 'blue') }}</p>
+      </div>
+    </div>
+
+    <!-- Insulin params -->
+    <div class="card">
+      <p class="section-tag mb-4">Parámetros de insulina</p>
+      <div class="rounded-xl p-3 mb-4" [style.background]="theme.palette.light">
+        <p class="text-xs font-semibold mb-2" [style.color]="theme.palette.onLight">Recalcular desde TDD</p>
+        <div class="flex gap-2">
+          <input type="number" inputmode="numeric" class="input-field flex-1 text-sm py-2"
+            placeholder="Unidades totales al día"
+            [ngModel]="tdd()" (ngModelChange)="tdd.set($event ? +$event : null)" />
+          <button (click)="estimateTDD()" [disabled]="!tdd() || calcTdd()"
+            class="px-3 py-2 text-white rounded-xl text-sm font-medium disabled:opacity-50 transition flex items-center gap-1"
+            [style.background]="theme.palette.primary">
+            @if (calcTdd()) { <div class="w-4 h-4 spinner"></div> }
+            @else { <span class="material-icons-round text-sm">calculate</span> }
+          </button>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="label">Ratio insulina : carbos <span class="text-slate-400">(g/u)</span></label>
+          <input type="number" class="input-field" [ngModel]="profile().icr" (ngModelChange)="set('icr', +$event)" />
+        </div>
+        <div>
+          <label class="label">Factor de corrección <span class="text-slate-400">(mg/dL por u)</span></label>
+          <input type="number" class="input-field" [ngModel]="profile().isf" (ngModelChange)="set('isf', +$event)" />
+        </div>
+        <div>
+          <label class="label">Glucemia objetivo <span class="text-slate-400">(mg/dL)</span></label>
+          <input type="number" class="input-field" [ngModel]="profile().target_bg" (ngModelChange)="set('target_bg', +$event)" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Nightscout -->
+    <div class="card">
+      <p class="section-tag mb-4">Nightscout</p>
+      <div class="space-y-3">
+        <div>
+          <label class="label">URL</label>
+          <input class="input-field" [ngModel]="profile().nightscout_url" (ngModelChange)="set('nightscout_url', $event)"
+                 placeholder="https://mi-nightscout.railway.app" />
+        </div>
+        <div>
+          <label class="label">Token de acceso</label>
+          <input type="password" class="input-field" [ngModel]="profile().nightscout_token"
+                 (ngModelChange)="set('nightscout_token', $event)" placeholder="••••••••" />
+        </div>
+        <button (click)="testNightscout()" [disabled]="testing() || !profile().nightscout_url" class="btn-secondary w-full text-sm">
+          @if (testing()) { <div class="w-4 h-4 spinner-blue"></div> Probando… }
+          @else { <span class="material-icons-round text-base">wifi</span> Probar conexión }
+        </button>
+      </div>
+    </div>
+
+    <!-- Security / PIN -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <p class="section-tag">Seguridad</p>
+        <button type="button" class="btn-ghost py-1 px-2 text-sm" (click)="showPin.set(!showPin())">
+          {{ showPin() ? 'Cancelar' : (profile().pin ? 'Cambiar PIN' : 'Crear PIN') }}
+        </button>
+      </div>
+
+      @if (!showPin()) {
+        <div class="flex items-center gap-3">
+          <span class="material-icons-round text-slate-400">{{ profile().pin ? 'lock' : 'lock_open' }}</span>
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            {{ profile().pin ? 'PIN activado — se pide al abrir la app' : 'Sin PIN — acceso directo' }}
+          </p>
+        </div>
+      } @else {
+        <div class="space-y-3 fade-in">
+          <div>
+            <label class="label">Nuevo PIN (mín. 4 dígitos)</label>
+            <input type="password" inputmode="numeric" maxlength="8" class="input-field tracking-widest text-center text-xl"
+                   placeholder="• • • •" [ngModel]="newPin()" (ngModelChange)="newPin.set($event)" />
+          </div>
+          <div>
+            <label class="label">Confirmar PIN</label>
+            <input type="password" inputmode="numeric" maxlength="8" class="input-field tracking-widest text-center text-xl"
+                   placeholder="• • • •" [ngModel]="confirmPin()" (ngModelChange)="confirmPin.set($event)" />
+          </div>
+          @if (profile().pin) {
+            <button type="button" class="btn-danger" (click)="set('pin',''); showPin.set(false); toast.show('PIN eliminado al guardar','info')">
+              <span class="material-icons-round text-base">lock_open</span> Eliminar PIN
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Username + password (for web access) -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <p class="section-tag">Acceso web (usuario y contraseña)</p>
+        <button type="button" class="btn-ghost py-1 px-2 text-sm" (click)="showPassword.set(!showPassword())">
+          {{ showPassword() ? 'Cancelar' : 'Configurar' }}
+        </button>
+      </div>
+
+      @if (!showPassword()) {
+        <div class="flex items-center gap-3">
+          <span class="material-icons-round text-slate-400">language</span>
+          <p class="text-sm text-slate-600 dark:text-slate-300">
+            Credenciales seguras para acceder desde el móvil o internet
+          </p>
+        </div>
+      } @else {
+        <div class="space-y-3 fade-in">
+          <div>
+            <label class="label">Nombre de usuario</label>
+            <input type="text" autocomplete="username" class="input-field"
+              placeholder="ej: zaira" [ngModel]="newUsername()" (ngModelChange)="newUsername.set($event)" />
+          </div>
+          <div>
+            <label class="label">Nueva contraseña (mín. 6 caracteres)</label>
+            <input type="password" autocomplete="new-password" class="input-field"
+              placeholder="••••••••" [ngModel]="newPassword()" (ngModelChange)="newPassword.set($event)" />
+          </div>
+          <div>
+            <label class="label">Confirmar contraseña</label>
+            <input type="password" autocomplete="new-password" class="input-field"
+              placeholder="••••••••" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" />
+          </div>
+          <p class="text-xs text-slate-400">Se guardará al pulsar "Guardar cambios"</p>
+        </div>
+      }
+    </div>
+
+    <!-- Save -->
+    <button (click)="save()" [disabled]="saving()" class="btn-primary">
+      @if (saving()) { <div class="spinner"></div> Guardando… }
+      @else { <span class="material-icons-round">save</span> Guardar cambios }
+    </button>
+
+    <button (click)="goSetup()" class="btn-ghost w-full text-slate-400 text-sm">
+      Volver al asistente de configuración
+    </button>
+
+    <!-- Logout -->
+    <button (click)="logout()" class="btn-danger">
+      <span class="material-icons-round text-base">logout</span> Cerrar sesión
+    </button>
+
+    <div class="h-2"></div>
+  </div>
+</div>

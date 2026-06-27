@@ -1,0 +1,130 @@
+<div class="min-h-screen flex flex-col items-center justify-center px-6 py-10"
+     [style.background]="theme.headerGradient()">
+
+  <!-- Logo -->
+  <div class="w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 shadow-lg">
+    <span class="material-icons-round text-white" style="font-size:40px">monitor_heart</span>
+  </div>
+  <h1 class="text-3xl font-bold text-white mb-1">DiaBetis</h1>
+  <p class="text-white/70 text-sm mb-8">Gestión inteligente de insulina</p>
+
+  @if (loading()) {
+    <div class="flex justify-center py-8">
+      <div class="w-8 h-8 spinner"></div>
+    </div>
+  }
+
+  <!-- ── Username + password login ── -->
+  @if (!loading() && mode() === 'password') {
+    <div class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8">
+      <h2 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Iniciar sesión</h2>
+      <p class="text-slate-400 text-sm mb-6">Introduce tus credenciales</p>
+
+      <label class="label">Usuario</label>
+      <input type="text" autocomplete="username" class="input-field mb-3"
+        placeholder="nombre de usuario"
+        [ngModel]="username()" (ngModelChange)="username.set($event)"
+        (keydown.enter)="loginWithPassword()" />
+
+      <label class="label">Contraseña</label>
+      <div class="relative mb-5">
+        <input [type]="showPass() ? 'text' : 'password'" autocomplete="current-password"
+          class="input-field pr-11"
+          placeholder="••••••••"
+          [ngModel]="password()" (ngModelChange)="password.set($event)"
+          (keydown.enter)="loginWithPassword()" />
+        <button type="button" (click)="showPass.set(!showPass())"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+          <span class="material-icons-round text-xl">{{ showPass() ? 'visibility_off' : 'visibility' }}</span>
+        </button>
+      </div>
+
+      <button class="btn-primary mb-4" (click)="loginWithPassword()"
+        [disabled]="entering() || !username() || !password()">
+        @if (entering()) { <div class="spinner"></div> } @else { <span class="material-icons-round">login</span> }
+        Entrar
+      </button>
+
+      <!-- PIN fallback link -->
+      <div class="text-center">
+        <button (click)="mode.set('profiles')" class="text-xs text-slate-400 hover:text-slate-600 transition underline">
+          Acceso por PIN (uso local)
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Profile list (PIN mode) ── -->
+  @if (!loading() && mode() === 'profiles') {
+    <div class="w-full max-w-sm">
+      @if (profiles().length === 0) {
+        <div class="bg-white/15 backdrop-blur-sm rounded-2xl p-6 text-center text-white/80 mb-4">
+          <span class="material-icons-round text-5xl mb-2 block">person_add</span>
+          <p class="font-medium">Sin perfiles aún</p>
+          <p class="text-sm opacity-70">Crea el primer perfil para empezar</p>
+        </div>
+      } @else {
+        <div class="space-y-3 mb-4">
+          @for (p of profiles(); track p.id) {
+            <button (click)="selectForPin(p)"
+              class="w-full bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-2xl px-4 py-3.5
+                     flex items-center gap-4 text-left transition-all duration-150 border border-white/10">
+              <div class="w-11 h-11 rounded-xl flex items-center justify-center text-lg font-bold text-white flex-shrink-0"
+                   style="background:rgba(255,255,255,0.25)">
+                {{ initial(p.name) }}
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-white font-semibold truncate">{{ p.name }}</p>
+                <p class="text-white/60 text-xs">Entrar con PIN</p>
+              </div>
+              <span class="material-icons-round text-white/50">chevron_right</span>
+            </button>
+          }
+        </div>
+      }
+
+      <button (click)="newProfile()"
+        class="w-full border-2 border-dashed border-white/30 rounded-2xl py-3.5 text-white/70
+               hover:border-white/50 hover:text-white transition flex items-center justify-center gap-2 mb-3">
+        <span class="material-icons-round">add</span>
+        Añadir perfil
+      </button>
+
+      @if (profiles().some(p => p.has_password)) {
+        <button (click)="mode.set('password')" class="w-full text-center text-white/60 text-sm hover:text-white transition underline">
+          Volver al login con contraseña
+        </button>
+      }
+    </div>
+  }
+
+  <!-- ── PIN entry ── -->
+  @if (!loading() && mode() === 'pin' && selected()) {
+    <div class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8">
+      <button (click)="back()" class="flex items-center gap-1 text-slate-400 text-sm mb-5 hover:text-slate-600 transition">
+        <span class="material-icons-round text-base">arrow_back</span> Atrás
+      </button>
+
+      <div class="flex justify-center mb-3">
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold text-white"
+             [style.background]="theme.palette.primary">
+          {{ initial(selected()!.name) }}
+        </div>
+      </div>
+      <p class="text-center font-bold text-slate-900 dark:text-white text-xl mb-1">{{ selected()!.name }}</p>
+      <p class="text-center text-slate-400 text-sm mb-5">Introduce tu PIN</p>
+
+      <input type="password" inputmode="numeric" maxlength="8"
+        class="input-field text-center text-2xl tracking-widest mb-4"
+        placeholder="• • • •"
+        [ngModel]="pin()" (ngModelChange)="pin.set($event)"
+        (keydown.enter)="enterPin()"
+        autofocus />
+
+      <button class="btn-primary" (click)="enterPin()" [disabled]="entering()">
+        @if (entering()) { <div class="spinner"></div> } @else { <span class="material-icons-round">login</span> }
+        Entrar
+      </button>
+    </div>
+  }
+</div>

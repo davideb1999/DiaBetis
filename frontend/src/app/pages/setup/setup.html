@@ -1,0 +1,179 @@
+<div class="min-h-dvh bg-gradient-to-br from-blue-600 to-indigo-800 flex flex-col">
+
+  <!-- Top decoration -->
+  <div class="relative pt-safe pt-10 pb-6 px-6 flex-shrink-0">
+    <div class="absolute -top-8 -right-8 w-48 h-48 bg-white/5 rounded-full"></div>
+    <div class="absolute top-20 -left-10 w-32 h-32 bg-white/5 rounded-full"></div>
+
+    <div class="relative z-10">
+      <!-- Logo -->
+      <div class="flex items-center gap-2 mb-8">
+        <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center shadow-md">
+          <span class="material-icons-round text-blue-600 text-xl">monitor_heart</span>
+        </div>
+        <span class="text-white font-bold text-lg">DiaBetis</span>
+      </div>
+
+      <!-- Step dots -->
+      <div class="flex items-center gap-2 mb-6">
+        @for (n of [1,2,3]; track n) {
+          <div class="h-1.5 rounded-full transition-all duration-300"
+               [class]="n === step() ? 'bg-white w-8' : n < step() ? 'bg-white/60 w-4' : 'bg-white/25 w-4'">
+          </div>
+        }
+        <span class="text-blue-200 text-xs ml-1">{{ step() }} / 3</span>
+      </div>
+
+      <!-- Step heading -->
+      @if (step() === 1) {
+        <h1 class="text-white text-2xl font-bold">Hola, ¿cómo te llamas? 👋</h1>
+        <p class="text-blue-200 text-sm mt-1">Empecemos con lo básico.</p>
+      }
+      @if (step() === 2) {
+        <h1 class="text-white text-2xl font-bold">Tus parámetros de insulina</h1>
+        <p class="text-blue-200 text-sm mt-1">No los sabes? Te los calculo yo.</p>
+      }
+      @if (step() === 3) {
+        <h1 class="text-white text-2xl font-bold">Conectar Nightscout</h1>
+        <p class="text-blue-200 text-sm mt-1">Opcional — para leer el Dexcom automáticamente.</p>
+      }
+    </div>
+  </div>
+
+  <!-- Card -->
+  <div class="flex-1 bg-white rounded-t-3xl px-5 pt-6 pb-8 flex flex-col overflow-y-auto">
+
+    <!-- ── STEP 1 ── -->
+    @if (step() === 1) {
+      <form [formGroup]="f1" class="flex flex-col flex-1 gap-4">
+        <div>
+          <label class="label">Tu nombre</label>
+          <input formControlName="name" class="input-field" placeholder="Ej: Marta" />
+        </div>
+
+        <div>
+          <label class="label">Insulina rápida que usas</label>
+          <select formControlName="insulinType" class="input-field cursor-pointer">
+            <option value="3.5">NovoRapid · Humalog · Apidra</option>
+            <option value="2.5">Fiasp · Lyumjev (ultra-rápida)</option>
+          </select>
+        </div>
+
+        <div class="mt-auto pt-4">
+          <button type="button" (click)="next()" [disabled]="f1.invalid"
+            class="btn-primary">
+            Siguiente <span class="material-icons-round text-lg">arrow_forward</span>
+          </button>
+        </div>
+      </form>
+    }
+
+    <!-- ── STEP 2 ── -->
+    @if (step() === 2) {
+      <form [formGroup]="f2" class="flex flex-col flex-1 gap-4">
+
+        <!-- TDD toggle -->
+        <div class="bg-blue-50 rounded-xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-slate-700">¿No sabes tus ratios?</p>
+              <p class="text-xs text-slate-500 mt-0.5">Los calculo a partir de tu dosis total diaria.</p>
+            </div>
+            <button type="button" (click)="useTDD.set(!useTDD())"
+              class="flex-shrink-0 w-12 h-6 rounded-full transition-colors duration-200 relative"
+              [class]="useTDD() ? 'bg-blue-600' : 'bg-slate-200'">
+              <span class="absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all duration-200"
+                    [class]="useTDD() ? 'left-6' : 'left-0.5'"></span>
+            </button>
+          </div>
+
+          @if (useTDD()) {
+            <div class="mt-3 pt-3 border-t border-blue-100">
+              <label class="label">Unidades de insulina al día <span class="text-slate-400">(basal + todos los bolos)</span></label>
+              <div class="flex gap-2">
+                <input formControlName="tdd" type="number" class="input-field flex-1" placeholder="Ej: 35" />
+                <button type="button" (click)="estimateFromTDD()" [disabled]="!f2.get('tdd')?.value || calculating()"
+                  class="px-4 py-3 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-700 transition disabled:opacity-50 flex items-center gap-1.5">
+                  @if (calculating()) { <span class="spinner w-4 h-4"></span> }
+                  @else { <span class="material-icons-round text-base">calculate</span> }
+                </button>
+              </div>
+              @if (estimated()) {
+                <div class="mt-2 flex gap-2">
+                  <span class="chip-green"><span class="material-icons-round text-xs">check</span> Ratio {{ estimated()!.icr }}g/u</span>
+                  <span class="chip-green"><span class="material-icons-round text-xs">check</span> Factor {{ estimated()!.isf }} mg/dL</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1.5">Estimación basada en la regla 1800/500. Confírmalo con tu médico.</p>
+              }
+            </div>
+          }
+        </div>
+
+        <div>
+          <label class="label">Ratio insulina : carbohidratos <span class="text-slate-400">(g por unidad)</span></label>
+          <input formControlName="icr" type="number" class="input-field" placeholder="Ej: 12" />
+          <p class="text-xs text-slate-400 mt-1">Gramos de carbos que cubre 1 unidad</p>
+        </div>
+
+        <div>
+          <label class="label">Factor de corrección <span class="text-slate-400">(mg/dL por unidad)</span></label>
+          <input formControlName="isf" type="number" class="input-field" placeholder="Ej: 50" />
+          <p class="text-xs text-slate-400 mt-1">Cuánto baja el azúcar con 1 unidad</p>
+        </div>
+
+        <div>
+          <label class="label">Glucemia objetivo <span class="text-slate-400">(mg/dL)</span></label>
+          <input formControlName="targetBg" type="number" class="input-field" placeholder="100" />
+        </div>
+
+        <div class="mt-auto pt-2 flex gap-3">
+          <button type="button" (click)="back()" class="btn-secondary flex-1">
+            <span class="material-icons-round text-base">arrow_back</span> Atrás
+          </button>
+          <button type="button" (click)="next()" [disabled]="f2.invalid" class="btn-primary flex-1">
+            Siguiente <span class="material-icons-round text-lg">arrow_forward</span>
+          </button>
+        </div>
+      </form>
+    }
+
+    <!-- ── STEP 3 ── -->
+    @if (step() === 3) {
+      <form [formGroup]="f3" class="flex flex-col flex-1 gap-4">
+
+        <div class="bg-indigo-50 rounded-xl p-4 flex gap-3">
+          <span class="material-icons-round text-indigo-500 text-3xl flex-shrink-0">sensors</span>
+          <div>
+            <p class="text-sm font-semibold text-slate-700">¿Tienes Nightscout?</p>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Si tu novia tiene Nightscout configurado con el Dexcom, la app leerá la glucemia automáticamente.
+              Si no, puedes introducirla a mano. Puedes añadirlo después.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <label class="label">URL de Nightscout</label>
+          <input formControlName="nightscoutUrl" class="input-field" placeholder="https://mi-nightscout.railway.app" />
+        </div>
+
+        <div>
+          <label class="label">Token de acceso</label>
+          <input formControlName="nightscoutToken" type="password" class="input-field" placeholder="••••••••" />
+        </div>
+
+        <div class="mt-auto pt-2 flex gap-3">
+          <button type="button" (click)="back()" class="btn-secondary flex-1">
+            <span class="material-icons-round text-base">arrow_back</span> Atrás
+          </button>
+          <button type="button" (click)="save()" [disabled]="saving()"
+            class="btn-primary flex-1">
+            @if (saving()) { <span class="spinner"></span> Guardando… }
+            @else { <span class="material-icons-round">check</span> ¡Empezar! }
+          </button>
+        </div>
+      </form>
+    }
+
+  </div>
+</div>

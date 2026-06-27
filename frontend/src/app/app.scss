@@ -1,0 +1,9 @@
+.nav-link {
+  &.active-nav {
+    color: var(--brand-primary);
+
+    span:first-child {
+      font-variation-settings: 'FILL' 1;
+    }
+  }
+}
