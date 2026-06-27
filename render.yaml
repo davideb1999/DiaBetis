@@ -3,7 +3,7 @@ services:
     name: diabetis
     runtime: node
     plan: free
-    buildCommand: cd frontend && npm install && npx ng build --configuration=production && cd ../backend && npm install && npm run build
+    buildCommand: cd frontend && npm install --legacy-peer-deps && npx ng build --configuration=production && cd ../backend && npm install && npm run build
     startCommand: node backend/dist/index.js
     envVars:
       - key: NODE_ENV
